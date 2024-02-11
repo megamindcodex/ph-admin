@@ -1,49 +1,33 @@
 <template>
   <div class="cont">
-    <div class="product" v-if="product">
+    <div class="category" v-if="category">
       <div class="header">
         <button
           :class="{ notdeployed: !isDeployed, deployed: isDeployed }"
-          @click="deployProduct"
+          @click="handleDeploy"
         >
           {{ text }}
         </button>
         <span class="editBtn" @click="showForm">Edit</span>
       </div>
       <div class="mainImage">
-        <img :src="product.productImageURL" :alt="product.name" />
+        <img :src="category.categoryImageURL" :alt="category.name" />
       </div>
-      <div class="desc pa-4 d-flex flex-column ga-4">
-        <div class="info d-flex flex-column justify-center">
-          <h3>{{ product.name }}</h3>
-          <h3>{{ product.category }}</h3>
-          <p>{{ product.brand }}</p>
-          <p>${{ product.price }}</p>
-          <p><b>decription:</b> <br />{{ product.description }}</p>
-        </div>
-
-        <div class="tags d-flex w-100 align-center">
-          <v-chip
-            size="small"
-            class="tag bg-info"
-            v-for="tag in product.tags"
-            :key="tag"
-          >
-            <span>#{{ tag }}</span>
-          </v-chip>
-        </div>
+      <div class="desc">
+        <h3>{{ category.name }}</h3>
+        <p>{{ category.description }}</p>
       </div>
-      <div class="delete">
-        <button @click="deleteProduct">delete</button>
-      </div>
+    </div>
+    <div class="delete">
+      <button @click="deleteCategory">delete</button>
     </div>
 
     <v-dialog v-model="isFormVisible">
-      <UpdateForm
-        :product="product"
-        :productToUpdate="productToUpdate"
+      <UpdateCategoryForm
+        :category="category"
+        :categoryToUpdate="categoryToUpdate"
         :isFormVisible="isFormVisible"
-        :getProductDetail="getProductDetail"
+        :getCategoryDetail="getCategoryDetail"
         :removeForm="removeForm"
       />
     </v-dialog>
@@ -52,107 +36,108 @@
 
 <script setup>
 import axios from "axios";
-import UpdateForm from "../components/UpdateForm.vue";
+import UpdateCategoryForm from "../components/UpdateCategoryForm.vue";
 import { endpoint } from "../constants/endpoint";
 import { onMounted, reactive, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 
-const product = ref({});
-const deployed = ref(false);
+const category = ref({});
 const isDeployed = ref(false);
 const text = ref("");
 const isFormVisible = ref(false);
 const route = useRoute();
 const router = useRouter();
-const productId = ref(route.params.id);
-const productToUpdate = reactive({
-  name: product.name,
-  category: product.category,
-  brand: product.brand,
-  price: product.price,
-  description: product.description,
-  tags: product.tags,
-  productImageURL: product.productImageURL,
+const categoryName = ref(route.params.name);
+const categoryToUpdate = reactive({
+  name: category.name,
+  description: category.description,
+  noItems: category.noItems,
+  categoryImageURL: category.productImageURL,
 });
 
-const getProductDetail = async () => {
+const getCategoryDetail = async () => {
   try {
-    const productId = route.params.id;
-    const res = await axios.get(`${endpoint}/api/productDetail/${productId}`);
+    const categoryName = route.params.name;
+    // console.log(categoryName);
+    const res = await axios.get(
+      `${endpoint}/api/categoryDetail/${categoryName}`
+    );
 
     if (res.status === 200) {
-      product.value = res.data;
-      // console.log(res.data)
+      category.value = res.data;
+      // console.log(res.data);
     }
   } catch (err) {
-    console.log("Failed to get product detail", err.message);
+    console.log("Failed to get category detail", err.message);
   }
 };
-const deployProduct = async () => {
+const handleDeploy = async () => {
   try {
-    const productId = route.params.id;
-    const res = await axios.put(`${endpoint}/api/deployProduct/${productId}`);
+    const categoryName = route.params.name;
+    const res = await axios.put(
+      `${endpoint}/api/deployCategory/${categoryName}`
+    );
 
     if (res.status === 200) {
-      checkDeploy();
+      checkCategoryDeploy();
     }
   } catch (err) {
-    console.error("Error setting product deploy property", err.message);
+    console.error("Error setting category deploy property", err.message);
   }
 };
-const checkDeploy = async () => {
+const checkCategoryDeploy = async () => {
   try {
-    const productId = route.params.id;
-    const res = await axios.get(`${endpoint}/api/checkDeploy/${productId}`);
+    const categoryName = route.params.name;
+    const res = await axios.get(
+      `${endpoint}/api/checkCategoryDeploy/${categoryName}`
+    );
 
     if (res.status === 200) {
       isDeployed.value = res.data;
-      console.log("product deployed", res.data);
       if (!isDeployed.value) {
         text.value = "undeployed";
       } else {
         text.value = "deployed";
       }
+      console.log("category deployed", res.data);
     }
   } catch (err) {
-    console.error("Error checking product deploy property");
+    console.error("Error checking category deploy property", err.message);
   }
 };
-const deleteProduct = async () => {
+
+const deleteCategory = async () => {
   try {
-    console.log(productId.value);
+    const categoryName = route.params.category;
     const res = await axios.post(
-      `${endpoint}/api/deleteProduct/${productId.value}`
+      `${endpoint}/api/deleteCategory/${categoryName}`
     );
 
     if (res.status === 200) {
-      console.log("product deleted", res.data);
+      console.log("category deleted", res.data);
       router.push("/");
     }
   } catch (err) {
-    console.error("Error deleting product", err.message);
+    console.error("Error deleting category", err.message);
   }
 };
 const showForm = () => {
   isFormVisible.value = true;
 
-  productToUpdate.name = product.value.name;
-  productToUpdate.category = product.value.category;
-  productToUpdate.brand = product.value.brand;
-  productToUpdate.price = product.value.price;
-  productToUpdate.description = product.value.description;
-  productToUpdate.tags = product.value.tags;
-  productToUpdate.productImageURL = product.value.productImageURL;
+  categoryToUpdate.name = category.value.name;
+  categoryToUpdate.category = category.value.category;
+  categoryToUpdate.description = category.value.description;
+  categoryToUpdate.tags = category.value.tags;
+  categoryToUpdate.productImageURL = category.value.productImageURL;
 };
 
 const removeForm = () => {
   isFormVisible.value = false;
-  getProductDetail();
 };
 
 onMounted(() => {
-  getProductDetail();
-  checkDeploy();
+  getCategoryDetail();
+  checkCategoryDeploy();
 });
 </script>
 
@@ -242,26 +227,36 @@ onMounted(() => {
   position: absolute;
   top: 14.7%;
   right: 20%;
-  font-size: 20rem;
+  font-size: 30px;
   font-weight: bolder;
   cursor: pointer;
   color: white;
-  z-index: 400;
 }
 
-/* .tags {
+.tags {
   position: relative;
   display: flex;
   width: 100%;
   justify-content: end;
   align-items: center;
   text-align: center;
-} */
+}
 
-.tags {
-  display: flex;
-  width: 100%;
-  overflow: auto;
-  height: 40px;
+.tag {
+  color: #ffff;
+  font-size: 13px;
+  padding: 0.1rem 0px;
+  width: 20%;
+  border-radius: 30px;
+  background-color: orangered;
+}
+
+.tags span {
+  position: absolute;
+  top: -4px;
+  right: 2px;
+  padding: 2px;
+  color: #ffff;
+  cursor: pointer;
 }
 </style>

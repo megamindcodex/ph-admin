@@ -1,21 +1,16 @@
 
 <template>
-  <header>
-    <div class="wrapper">
-      <nav>
-        <RouterLink to="/sitesetting">Site Setting</RouterLink>
-        <RouterLink to="/">Manage Product</RouterLink>
-        <RouterLink to="/manageUsers">Manage Users</RouterLink>
-        <RouterLink to="/account">Account</RouterLink>
-      </nav>
+  <v-app>
+    <div>
+      <Header />
+      <RouterView />
     </div>
-  </header>
-
-  <RouterView />
+  </v-app>
 </template>
 
 
-<script>
+<script setup>
+import Header from "./components/Header.vue";
 </script>
 
 <style scoped>
@@ -48,5 +43,4 @@ nav a {
 nav a:first-of-type {
   border: 0;
 }
-
 </style>

@@ -11,7 +11,7 @@
           density="compact"
           placeholder="product name"
           variant="outlined"
-          v-model="formData.name"
+          v-model="productToUpdate.name"
         >
         </v-text-field>
 
@@ -20,7 +20,7 @@
           density="compact"
           placeholder="product category"
           variant="outlined"
-          v-model="formData.category"
+          v-model="productToUpdate.category"
         >
         </v-text-field>
       </div>
@@ -32,7 +32,7 @@
           density="compact"
           placeholder="product Brand"
           variant="outlined"
-          v-model="formData.brand"
+          v-model="productToUpdate.brand"
         >
         </v-text-field>
         <v-text-field
@@ -41,7 +41,7 @@
           density="compact"
           placeholder="product Price"
           variant="outlined"
-          v-model="formData.price"
+          v-model="productToUpdate.price"
         >
         </v-text-field>
       </div>
@@ -55,7 +55,7 @@
           rows="2"
           row-height="15"
           shaped
-          v-model="formData.description"
+          v-model="productToUpdate.description"
         >
         </v-textarea>
       </div>
@@ -78,7 +78,7 @@
             <v-chip
               size="x-small"
               class="bg-info tag"
-              v-for="(tag, index) in formData.tags"
+              v-for="(tag, index) in productToUpdate.tags"
               :key="index"
               @click="removeTag(index)"
               ><span>#{{ tag }}</span>
@@ -93,7 +93,7 @@
           density="compact"
           placeholder="Image URL"
           variant="outlined"
-          v-model="formData.productImageURL"
+          v-model="productToUpdate.productImageURL"
           @input="getImage"
         >
         </v-text-field>
@@ -108,78 +108,86 @@
       </div>
 
       <div class="w-100 d-flex ga-4 pa-4">
-        <v-btn class="w-50" @click="addProduct">add product</v-btn>
+        <v-btn class="w-50" @click="updateProduct">Update product</v-btn>
         <v-btn class="w-50" @click="removeForm">cancle</v-btn>
       </div>
     </v-card>
   </div>
 </template>
-  
-  <script setup>
+
+<script setup>
 import axios from "axios";
-import { reactive, ref, defineProps } from "vue";
-import { useProductsStore } from "../store/getAllProduct";
+import { defineProps, onMounted } from "vue";
+import { ref } from "vue";
+import { useRoute, useRouter } from "vue-router";
 
-const { removeForm } = defineProps(["removeForm"]);
+// Define props explicitly using defineProps
+const {
+  product,
+  productToUpdate,
+  getProductDetail,
+  isFormVisible,
+  removeForm,
+} = defineProps([
+  "product",
+  "productToUpdate",
+  "getProductDetail",
+  "isFormVisible",
+  "removeForm",
+]);
 
-const productStore = useProductsStore();
+const route = useRoute();
+// const router = useRouter();
 
-const formData = reactive({
-  name: "",
-  category: "",
-  brand: "",
-  price: null,
-  description: "",
-  tags: [],
-  productImageURL: "",
-});
 const imageURL = ref("");
 const tag = ref("");
-
 const getImage = () => {
-  imageURL.value = formData.productImageURL;
+  imageURL.value = productToUpdate.productImageURL;
 };
+
+const productTags = productToUpdate.tags;
 
 const addTag = () => {
   if (tag.value.length > 0) {
-    formData.tags.push(tag.value);
+    productToUpdate.tags.push(tag.value);
     tag.value = "";
   }
 };
-
 const removeTag = (index) => {
-  formData.tags.splice(index, 1);
+  productToUpdate.tags.splice(index, 1);
 };
 
-const addProduct = async () => {
+const updateProduct = async () => {
   try {
-    console.log(`data to be sent ${formData}`);
-    const res = await axios.post(
-      "http://localhost:5000/api/addproduct",
-      formData
+    const productId = route.params.id;
+    const res = await axios.put(
+      `http://localhost:5000/api/updateProduct/${productId}`,
+      productToUpdate
     );
-
-    if (res.status === 201) {
-      console.log(res.data);
-
-      formData.productImageURL = "";
-      formData.name = "";
-      formData.category = "";
-      formData.brand = "";
-      formData.price = "";
-      formData.description = "";
-      // formData.tags = [];
-      tag.value = "";
-      productStore.getAllProducts();
+    if (res.status === 200) {
+      product.value = res.data;
+      console.log("product updated", res.data);
+      getProductDetail();
       removeForm();
+    } else {
+      console.error(
+        "Failed to update product. Unexpected status code:",
+        res.status
+      );
     }
+
+    console.log(res.data);
   } catch (err) {
-    console.log(err.message);
+    console.log("Fialed to Update product content", err.message);
   }
 };
+
+onMounted(() => {
+  getImage();
+});
 </script>
-  
-  <style scoped>
+
+<style scoped>
 .cont {
   width: 100%;
   display: flex;
@@ -187,50 +195,13 @@ const addProduct = async () => {
   align-items: center;
 }
 
-/* .form {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  background-color: rgb(202, 218, 218);
-  padding: 1rem;
-} */
-
-/* .col1 {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-} */
-
-/* .col2 {
-  display: flex;
-  column-gap: 0.5rem;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-} */
-
-/* .form-group {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  width: 100%;
-} */
-
-/* input[type="text"] {
-  margin-top: 1rem;
-  width: 100%;
-  padding: 0.6rem;
-  border-radius: 2.7px;
-  border: none;
-} */
-
-/* .btn {
+.btn {
   display: flex;
   justify-content: center;
   align-items: center;
   width: 100%;
-} */
+  /* background: orange; */
+}
 
 .imgCont {
   display: flex;
@@ -267,7 +238,25 @@ const addProduct = async () => {
   width: 35%;
   border: none;
   border-radius: 3px;
+  cursor: pointer;
 }
+
+/* .tagsCont {
+  position: relative;
+  background: teal;
+  justify-content: end;
+  align-items: center;
+  text-align: center;
+} */
+
+/* .tags {
+  position: relative;
+  display: flex;
+  width: 100%;
+  justify-content: end;
+  align-items: center;
+  text-align: center;
+} */
 
 .tags {
   display: flex;
@@ -275,14 +264,4 @@ const addProduct = async () => {
   overflow: auto;
   height: 40px;
 }
-
-/* .tags span {
-  position: absolute;
-  top: -4px;
-  right: 2px;
-  padding: 2px;
-  color: #ffff;
-  cursor: pointer;
-} */
 </style>
-  

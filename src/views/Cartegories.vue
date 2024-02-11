@@ -1,71 +1,69 @@
 <template>
-  <span>products: {{ productStore.productsLenght }}</span>
+  <span>products: {{ categoriesStore.categoriesLenght }}</span>
   <!-- <marquee behavior="alternate"  >Black firday offers are available!!</marquee> -->
   <div class="main">
     <div class="cont">
       <div class="header">
-        <span class="addNewBtn" @click="showForm"> New product</span>
+        <span class="addNewBtn" @click="showForm"> New category</span>
       </div>
-      <div class="loading" v-if="productStore.loading">
+      <div class="loading" v-if="categoriesStore.loading">
         <span> Loading </span>
       </div>
-      <div class="productCont" v-if="productStore.products">
+      <div class="productCont" v-if="categoriesStore.categories">
         <div
           class="product"
-          v-for="product in productStore.products"
-          :key="product._id"
+          v-for="category in categoriesStore.categories"
+          :key="category._id"
         >
-          <div class="btn" v-if="!product.deploy">
+          <div class="btn" v-if="!category.deploy">
             <span class="notdeployed"> undeployed </span>
           </div>
           <div class="btn" v-else>
             <span class="deployed"> deployed </span>
           </div>
           <div class="image">
-            <img :src="product.productImageURL" :alt="product.name" />
+            <img :src="category.categoryImageURL" :alt="category.name" />
           </div>
           <div class="desc">
-            <h3>{{ product.name }}</h3>
-            <p>${{ product.price }}</p>
-            <p>{{ product.deploy }}</p>
-
-            <RouterLink :to="'/productDetail/' + product._id"
+            <h3>{{ category.name }}</h3>
+            <RouterLink :to="'/categoryDetail/' + category.name"
               >modify</RouterLink
             >
           </div>
         </div>
-        <span class="addNewCont" @click="showForm"> New product </span>
+        <span class="addNewCont" @click="categoriesStore.showForm">
+          New product
+        </span>
       </div>
       <div class="productCont" v-else>
-        <h3>No product found</h3>
+        <h3>No Categories found</h3>
       </div>
     </div>
     <div>
       <v-dialog v-model="isFormVisible">
-        <Form :removeForm="removeForm" />
+        <CategoryForm :removeForm="removeForm" />
       </v-dialog>
     </div>
   </div>
 </template>
 
 <script setup>
-import Form from "@/components/Form.vue";
+import CategoryForm from "../components/CategoryForm.vue";
 import Backlay from "@/components/Backlay.vue";
-import { onMounted, ref } from "vue";
-import { useProductsStore } from "../store/getAllProduct";
+import { useCategoriesStore } from "../store/categories";
+import { ref } from "vue";
 
 const isFormVisible = ref(false);
-
 const showForm = () => {
   isFormVisible.value = true;
 };
-
 const removeForm = () => {
   isFormVisible.value = false;
 };
-const productStore = useProductsStore();
-productStore.getAllProducts();
-</script> 
+
+const categoriesStore = useCategoriesStore();
+categoriesStore.getAllCategories();
+</script>
 
 <style scoped>
 marquee {
