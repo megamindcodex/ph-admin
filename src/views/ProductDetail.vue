@@ -1,7 +1,7 @@
 <template>
-  <div class="cont">
+  <v-container class="cont">
     <div class="product" v-if="product">
-      <div class="header">
+      <div class="action">
         <button
           :class="{ notdeployed: !isDeployed, deployed: isDeployed }"
           @click="deployProduct"
@@ -11,7 +11,7 @@
         <span class="editBtn" @click="showForm">Edit</span>
       </div>
       <div class="mainImage">
-        <img :src="product.productImageURL" :alt="product.name" />
+        <v-img :src="product.productImageURL" :alt="product.name" />
       </div>
       <div class="desc pa-4 d-flex flex-column ga-4">
         <div class="info d-flex flex-column justify-center">
@@ -33,7 +33,7 @@
           </v-chip>
         </div>
       </div>
-      <div class="delete">
+      <div class="delete pa-4">
         <button @click="deleteProduct">delete</button>
       </div>
     </div>
@@ -47,7 +47,7 @@
         :removeForm="removeForm"
       />
     </v-dialog>
-  </div>
+  </v-container>
 </template>
 
 <script setup>
@@ -157,7 +157,7 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.header {
+.action {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -175,7 +175,7 @@ onMounted(() => {
   border-radius: 4px;
   cursor: pointer;
 }
-.header button {
+.action button {
   color: white;
   border: none;
   border-radius: 3px;
@@ -217,12 +217,22 @@ onMounted(() => {
   height: auto;
 }
 
+.product {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 500px;
+  background-color: #ffff;
+  border-radius: 8px;
+}
+
 .mainImage {
   display: flex;
   justify-content: center;
   align-items: center;
   background: rgba(0, 0, 0, 0.549);
-  width: 400px;
+  width: 100%;
   height: auto;
   border-radius: 5px;
   text-align: center;
@@ -230,7 +240,6 @@ onMounted(() => {
 }
 
 .mainImage img {
-  position: relative;
   text-align: center;
   width: 100%;
   height: 100%;
