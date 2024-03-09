@@ -61,6 +61,7 @@
 
 <script setup>
 import { useCategoriesStore } from "@/store/categories";
+import { endpoint } from "@/constants/endpoint";
 import axios from "axios";
 import { reactive, ref, defineProps } from "vue";
 
@@ -78,10 +79,7 @@ const formData = reactive({
 const addCategory = async () => {
   try {
     console.log(`data to be sent ${formData}`);
-    const res = await axios.post(
-      "http://localhost:5000/api/addCategory",
-      formData
-    );
+    const res = await axios.post(`${endpoint}/api/addCategory`, formData);
 
     if (res.status === 201) {
       console.log(res.data);

@@ -117,6 +117,7 @@
   
   <script setup>
 import axios from "axios";
+import { endpoint } from "@/constants/endpoint";
 import { reactive, ref, defineProps } from "vue";
 import { useProductsStore } from "../store/getAllProduct";
 
@@ -154,10 +155,7 @@ const removeTag = (index) => {
 const addProduct = async () => {
   try {
     console.log(`data to be sent ${formData}`);
-    const res = await axios.post(
-      "http://localhost:5000/api/addproduct",
-      formData
-    );
+    const res = await axios.post(`${endpoint}/api/addproduct`, formData);
 
     if (res.status === 201) {
       console.log(res.data);
