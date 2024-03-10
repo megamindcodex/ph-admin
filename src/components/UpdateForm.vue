@@ -117,6 +117,7 @@
 
 <script setup>
 import axios from "axios";
+import { endpoint } from "@/constants/endpoint";
 import { defineProps, onMounted } from "vue";
 import { ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
@@ -161,7 +162,7 @@ const updateProduct = async () => {
   try {
     const productId = route.params.id;
     const res = await axios.put(
-      `http://localhost:5000/api/updateProduct/${productId}`,
+      `${endpoint}/api/updateProduct/${productId}`,
       productToUpdate
     );
     if (res.status === 200) {
