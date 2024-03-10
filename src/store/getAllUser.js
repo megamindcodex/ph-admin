@@ -13,7 +13,7 @@ export const useUsersStore = defineStore("usersStore", {
         const res = await axios.get(`${endpoint}/api/allUsers`);
         if (res.status === 200) {
           this.users = res.data;
-          // console.log(users.value)
+          console.log(this.users);
         } else {
           console.error("Unexpected status code:", res.status);
         }
