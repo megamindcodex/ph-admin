@@ -31,9 +31,7 @@
             >
           </div>
         </div>
-        <span class="addNewCont" @click="categoriesStore.showForm">
-          New product
-        </span>
+        <span class="addNewCont" @click="showForm"> New product </span>
       </div>
       <div class="productCont" v-else>
         <h3>No Categories found</h3>

@@ -48,6 +48,7 @@ const isFormVisible = ref(false);
 const route = useRoute();
 const router = useRouter();
 const categoryName = ref(route.params.name);
+const categoryId = ref(category.value.id);
 const categoryToUpdate = reactive({
   name: category.name,
   description: category.description,
@@ -57,14 +58,17 @@ const categoryToUpdate = reactive({
 
 const getCategoryDetail = async () => {
   try {
-    const categoryName = route.params.name;
-    // console.log(categoryName);
+    // const categoryName = ref(route.params.name);
+    console.log(categoryName.value);
     const res = await axios.get(
-      `${endpoint}/api/categoryDetail/${categoryName}`
+      `${endpoint}/api/categoryDetail/${categoryName.value}`
     );
 
     if (res.status === 200) {
       category.value = res.data;
+      categoryId.value = res.data._id;
+      console.log(categoryId.value);
+
       // console.log(res.data);
     }
   } catch (err) {
@@ -73,9 +77,9 @@ const getCategoryDetail = async () => {
 };
 const handleDeploy = async () => {
   try {
-    const categoryName = route.params.name;
+    // const categoryName = route.params.name;
     const res = await axios.put(
-      `${endpoint}/api/deployCategory/${categoryName}`
+      `${endpoint}/api/deployCategory/${categoryName.value}`
     );
 
     if (res.status === 200) {
@@ -86,8 +90,8 @@ const handleDeploy = async () => {
   }
 };
 const checkCategoryDeploy = async () => {
+  const categoryName = route.params.name;
   try {
-    const categoryName = route.params.name;
     const res = await axios.get(
       `${endpoint}/api/checkCategoryDeploy/${categoryName}`
     );
@@ -108,14 +112,14 @@ const checkCategoryDeploy = async () => {
 
 const deleteCategory = async () => {
   try {
-    const categoryName = route.params.category;
+    // console.log(categoryName.value);
     const res = await axios.post(
-      `${endpoint}/api/deleteCategory/${categoryName}`
+      `${endpoint}/api/deleteCategory/${categoryId.value}`
     );
 
     if (res.status === 200) {
-      console.log("category deleted", res.data);
-      router.push("/");
+      console.log("category deleted");
+      router.push("/categories");
     }
   } catch (err) {
     console.error("Error deleting category", err.message);
@@ -196,6 +200,7 @@ onMounted(() => {
 
 .cont {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   width: 100%;
